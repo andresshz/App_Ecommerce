@@ -10,6 +10,8 @@ const buscarIdentificacion = (Usuario) => {
     }
     return false;
 }
+
+
 const generarToken = _id => Jwt.sign({ _id }, '12345678proyecto2022')
 
 const ControllerUsuario = {
@@ -49,6 +51,24 @@ const ControllerUsuario = {
             }
         } catch (err) {
             res.status(500).send('Error:', err)
+        }
+    },
+
+    Logear: async (req, res) => {
+        const { body } = req
+        const buscarUsuario = await Usuario.findOne({ identificacion: body.identificacion })
+        if (buscarUsuario) {
+            
+            const compare = bcryptjs.compareSync(body.password, buscarUsuario.password)
+            if (compare) {
+                const token = generarToken(buscarUsuario._id)
+                
+                res.status(200).send({token: token, email: buscarUsuario.identificacion})
+                return;
+            }
+
+            res.send('error')
+            
         }
     }
 
